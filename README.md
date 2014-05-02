@@ -15,10 +15,10 @@ class MyRepositorySession:
 [`query_tools.Criteria`]() object or a [`query_tools.Conjuction`]() object,
 and `model_type_objects` is an iterator of `ModelType` objects.
 
-Encoder sessions handle domain objects:
+Encoder sessions handle objects:
 ```python
 class MyEncoderSession:
-    def add_all(self, domain_objects):
+    def add_all(self, objects):
         ...
 ```
 
