@@ -29,9 +29,9 @@ setup(
     keywords='development',
     packages=['query_tools'],
     install_requires=[
-        #'sqlalchemy', #TODO: make optional
-        #'mock', #TODO: make optional: only required for testing
-        #'mapping-tools',
-        #'test-data'
+        'sqlalchemy', #TODO: make optional
+        'mock', #TODO: make optional: only required for testing
+        #'mapping-tools', #TODO: handled by github requirements
+        #'test-data' #TODO: handled by github requirements
     ],
 )
