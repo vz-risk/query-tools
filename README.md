@@ -1,5 +1,5 @@
 ```shell
-$ pip install git+ssh://git@github.com/natb1/mapping_tools.git
+$ pip install git+ssh://git@github.com/natb1/query_tools.git
 ```
 ...a collection of strategies for object persistence.
 
