@@ -1,3 +1,5 @@
 import sql_materializer
 
-SQLMaterializer = sql_materializer.SQLMaterializer
+SQLAlchemy = sqla.SQLAlchemy
+Criteria = criteria.Criteria
+Conjuction = criteria.Conjuction

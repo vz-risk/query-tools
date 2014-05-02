@@ -46,6 +46,10 @@ query_tools.Conjuction(conjuction, criteria)
 ```
 ... where `conjuction` interprets the conjuction to be used and `criteria` is
 an iterator of criteria.
+```python
+conjuction.__iter__(self)
+```
+... returns iter(self.criteria)
 
 ## The SQLAlchemy session manager
 ```python
