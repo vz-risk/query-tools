@@ -18,14 +18,21 @@ As a **user** I want to **query a materialized view**.
 ...			  index=True))
 >>> penguin_properties = ('favorite_penguin_name', 'favorite_penguin_mood',
 ...                       'favorite_penguin_id')
->>> aggregate_goose_schema = mapping_tools.AggregateSchema(Goose, {
+>>> aggregate_goose_schema = mapping_tools.Mapper(test_data.zoo.Goose, {
+...     ('name', 'id'):mapping_tools.identity,
 ...     penguin_properties:mapping_tools.make_constructor(
-...         Penguin, prefix='favorite_penguin_')})
->>> likes_puck = query_tools.Criteria(('favorite_penguin', 'name'), 'puck')
+...         test_data.zoo.Penguin, 'favorite_penguin')})
 >>> my_session_manager = query_tools.SQLAlchemy(
 ...     sqla_metadata, {aggregate_goose_schema:goose_mv})
+>>> my_session_manager.setup()
+>>> likes_puck = query_tools.Criteria(('favorite_penguin', 'name'), (u'puck',))
 >>> with my_session_manager.make_session() as session:
-...     query = session.query(test_data.zoo.Goose, likes_puck)
-...     str(query)
+...     select = session.get_select(test_data.zoo.Goose, likes_puck)
+...     print(select) # doctest: +NORMALIZE_WHITESPACE
+SELECT 
+    geese_mv.id, geese_mv.name, geese_mv.favorite_penguin_id, 
+    geese_mv.favorite_penguin_name, geese_mv.favorite_penguin_mood 
+FROM geese_mv 
+WHERE geese_mv.favorite_penguin_name IN (:favorite_penguin_name_1)
 
 ```

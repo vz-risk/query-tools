@@ -1,4 +1,5 @@
-import sql_materializer
+import criteria
+import sqla
 
 SQLAlchemy = sqla.SQLAlchemy
 Criteria = criteria.Criteria
