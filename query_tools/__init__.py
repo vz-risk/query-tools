@@ -1,6 +1,9 @@
 import criteria
+import json_encoder
 import sqla
 
-SQLAlchemy = sqla.SQLAlchemy
 Criteria = criteria.Criteria
 Conjuction = criteria.Conjuction
+
+SQLAlchemy = sqla.SQLAlchemy
+JSONEncoder = json_encoder.JSONEncoder

@@ -1,8 +1,76 @@
 ```shell
 $ pip install git+ssh://git@github.com/natb1/query_tools.git
 ```
-...a collection of strategies for object persistence.
+...a collection of strategies for object persistence. For example, these 
+objects:
+>>> class Penguin(object):
+...     def __init__(self, name, mood, id=None):
+...         self.name = name
+...         self.mood = mood
+...         self.id = id
+...     def __repr__(self):
+...         return '< %s the %s penguin >' % (self.name, self.mood)
+...
+>>> class Goose(object):
+...     def __init__(self, name, favorite_penguin, id=None):
+...         self.name = name
+...         self.favorite_penguin = favorite_penguin
+...         self.id = id
+...     def __repr__(self):
+...         template = '< %s, the goose that likes %s >'
+...         return template % (self.name, repr(self.favorite_penguin))
+...
+>>> grace = Goose('grace', Penguin('penny', 'fat'))
+>>> gale = Goose('gale', Penguin('prince', 'cool'))
+>>> ginger = Goose('ginger', Penguin('puck', 'boring'))
 
+```
+
+## The JSON session manager
+```python
+>>> import query_tools
+>>> goose_json_encoder = query_tools.JSONEncoder(Goose)
+>>> with goose_json_encoder.make_session() as session:
+...     json_data = session.add_all((grace, gale, ginger))
+...     print(json_data) # doctest: +NORMALIZE_WHITESPACE
+[ 
+  {
+    "favorite_penguin": {
+      "id": null,
+      "mood": "fat",
+      "name": "penny"
+    },
+    "id": null,
+    "name": "grace"
+  },
+  {
+    "favorite_penguin": {
+      "id": null,
+      "mood": "cool",
+      "name": "prince"
+    },
+    "id": null,
+    "name": "gale"
+  },
+  {
+    "favorite_penguin": {
+      "id": null,
+      "mood": "boring",
+      "name": "puck"
+    },
+    "id": null,
+    "name": "ginger"
+  }
+]
+
+```
+
+## The SQLAlchemy session manager
+```python
+query_tools.SQLAlchemy(sqla_metadata, materialized_mappers=None)
+```
+
+## The CSV session manager
 ## Repository and Encoder Sessions
 Repository sessions implement strategies for querying:
 ```python
@@ -22,7 +90,7 @@ class MyEncoderSession:
         ...
 ```
 
-Encoder and repository sessions are handled by session managers:
+Encoder and repository sessions are constructed by session managers:
 ```python
 class MySessionManager:
     def make_session(self):
@@ -40,7 +108,7 @@ query_tools.Criteria(path, value, operator)
 ```
 ... where `path` is a iterator that interprets the path to the criterion,
 `value` is the value to be compared at that path, and `operator` interprets the 
-comparison.
+comparison operator.
 ```python
 query_tools.Conjuction(conjuction, criteria)
 ```
@@ -51,11 +119,3 @@ conjuction.__iter__(self)
 ```
 ... returns iter(self.criteria)
 
-## The SQLAlchemy session manager
-```python
-query_tools.SQLAlchemy(sqla_metadata, materialized_mappers=None)
-```
-
-## The JSON session manager
-
-## The CSV session manager
