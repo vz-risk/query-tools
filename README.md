@@ -28,6 +28,11 @@ objects:
 
 ## The JSON session manager
 ```python
+query_tools.JSONEncoder(ModelType)
+```
+... constructs a json session manager where `ModelType` is the type to be 
+encoded. JSON sessions are adaptors to the python json libs.
+```python
 >>> import query_tools
 >>> goose_json_encoder = query_tools.JSONEncoder(Goose)
 >>> with goose_json_encoder.make_session() as session:
@@ -71,6 +76,39 @@ query_tools.SQLAlchemy(sqla_metadata, materialized_mappers=None)
 ```
 
 ## The CSV session manager
+```python
+query_tools.CSVEncoder(model_aggregate_map)
+```
+... constructs a csv session manager where `model_aggregate_map` is a 
+`mapping_tools.Mapper` instance with a map method that returns tabular
+instances of the model objects.
+```python
+>>> class GooseAggregate(object):
+...     def __init__(self, name, favorite_penguin_name, favorite_penguin_mood,
+...                  favorite_penguin_id=None, id=None):
+...         self.name = name
+...         self.favorite_penguin_name = favorite_penguin_name
+...         self.favorite_penguin_mood = favorite_penguin_mood
+...         self.favorite_penguin_id = favorite_penguin_id
+...         self.id = id
+...     def __repr__(self):
+...         template = '< %s the goose has a %s penguin mood >' 
+...         return template % (self.name, self.favorite_penguin_mood)
+...
+>>> import mapping_tools
+>>> penguin_projection = mapping_tools.make_projection(Penguin)
+>>> goose_aggregate_map = mapping_tools.Mapper(GooseAggregate, {
+...     ('name', 'id'):mapping_tools.identity,
+...     'favorite_penguin':penguin_projection})
+>>> goose_csv_encoder = query_tools.CSVEncoder(goose_aggregate_map)
+>>> with goose_csv_encoder.make_session() as session:
+...     session.add_all((grace, gale, ginger)) # doctest: +NORMALIZE_WHITESPACE
+favorite_penguin_id,favorite_penguin_name,favorite_penguin_mood,name,id
+,penny,fat,grace,
+,prince,cool,gale,
+,puck,boring,ginger,
+
+```
 ## Repository and Encoder Sessions
 Repository sessions implement strategies for querying:
 ```python
