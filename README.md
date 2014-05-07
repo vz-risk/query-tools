@@ -3,6 +3,7 @@ $ pip install git+ssh://git@github.com/natb1/query_tools.git
 ```
 ...a collection of strategies for object persistence. For example, these 
 objects:
+```ptyhon
 >>> class Penguin(object):
 ...     def __init__(self, name, mood, id=None):
 ...         self.name = name
