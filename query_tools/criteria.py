@@ -7,7 +7,7 @@ class Criteria(object):
 
 class Conjuction(object):
 
-    def __init__(self, conjuction, criteria):
+    def __init__(self, conjunction, criteria):
         self.conjuction = conjunction
         self.criteria = criteria
 
