@@ -5,7 +5,8 @@ import sqla
 
 class SQLite(sqla.SQLAlchemy):
 
-    def __init__(self, sqla_metadata, aggregate_mappers, db_file_path):
-        engine_url = 'sqlite:///%s' % db_file_path
+    def __init__(self, sqla_metadata, aggregate_mappers, db_file_path=None):
+        engine_url = 'sqlite://' if db_file_path is None \
+                     else 'sqlite:///%s' % db_file_path
         super(SQLite, self).__init__(
             sqla_metadata, aggregate_mappers, engine_url)
