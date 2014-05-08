@@ -1,5 +1,6 @@
 ```shell
-$ pip install git+ssh://git@github.com/natb1/query_tools.git
+$ wget https://raw.githubusercontent.com/natb1/query_tools/master/requirements.txt
+$ pip install -r requirements.txt
 ```
 ...a collection of strategies for object persistence. For example, these 
 objects:
