@@ -14,7 +14,7 @@ for requirement in github_requirements:
 setup(
     name='query_tools',
     description='a collection of strategies for object persistence',
-    long_description=open('README.md').read(),
+    #long_description=open('README.md').read(),
     url='https://github.com/natb1/query_tools',
     author='Nathan Buesgens',
     author_email='nathan@natb1.com',
