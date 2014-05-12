@@ -6,26 +6,31 @@ import mapping_tools.heuristics
 
 class CSVEncoder(object):
 
-    def __init__(self, aggregate_mapper, csvfile=sys.stdout):
+    def __init__(self, aggregate_mapper, fieldnames=None, csvfile=sys.stdout):
         self.aggregate_mapper = aggregate_mapper
+        self.fieldnames = fieldnames
         self.aggregate_dict_mapper = mapping_tools.DictMapper(
             self.aggregate_mapper.ModelPrimeType)
         self.csvfile = csvfile
 
     def make_session(self):
         return CSVEncoderSession(
-            self.aggregate_mapper, self.aggregate_dict_mapper,  self.csvfile)
+            self.aggregate_mapper, self.aggregate_dict_mapper,  self.csvfile,
+            self.fieldnames)
 
 class CSVEncoderSession(object):
 
-    def __init__(self, aggregate_mapper, aggregate_dict_mapper, csvfile):
+    def __init__(self, aggregate_mapper, aggregate_dict_mapper, csvfile,
+                 fieldnames):
         self.aggregate_mapper = aggregate_mapper
         self.aggregate_dict_mapper = aggregate_dict_mapper
         #TODO: this seems to rely on an impelementation detail of the dict
         #mapper
-        fieldnames = mapping_tools.heuristics.properties(
-            self.aggregate_mapper.ModelPrimeType)
-        self.csv_writer = csv.DictWriter(csvfile, fieldnames)
+        if fieldnames is None:
+            fieldnames = mapping_tools.heuristics.properties(
+                self.aggregate_mapper.ModelPrimeType)
+        self.csv_writer = csv.DictWriter(
+            csvfile, fieldnames, extrasaction='ignore')
 
     def __enter__(self):
         self.csv_writer.writeheader()
