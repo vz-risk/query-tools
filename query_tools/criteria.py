@@ -8,8 +8,8 @@ class Criteria(object):
 class Conjuction(object):
 
     def __init__(self, conjunction, criteria):
-        self.conjuction = conjunction
+        self.conjunction = conjunction
         self.criteria = criteria
 
     def __iter__(self):
-        return iter(self.critera)
+        return iter(self.criteria)

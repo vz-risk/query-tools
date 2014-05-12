@@ -61,7 +61,7 @@ class SQLAlchemySession(object):
     @staticmethod
     def _get_sqla_criterion(ModelType, criteria, aggregate_schema,
                             aggregate_table):
-        if hasattr(criteria, 'conjuction'):
+        if hasattr(criteria, 'conjunction'):
             if criteria.conjunction == 'and':
                 sub_criteria = SQLAlchemySession._get_subcriteria(
                     ModelType, aggregate_schema, criteria, aggregate_table)
