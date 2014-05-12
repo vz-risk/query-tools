@@ -1,3 +1,4 @@
+import datetime
 import json
 
 import mapping_tools
@@ -24,5 +25,13 @@ class JSONSession(object):
     def add_all(self, model_objects):
         model_dict_objects = [self.model_dict_mapper.map(obj)
                               for obj in model_objects]
-        json_data = json.dumps(model_dict_objects, indent=2, sort_keys=True)
+        json_data = json.dumps(model_dict_objects, indent=2, sort_keys=True,
+                               cls=DateTimeJSONEncoder)
         return json_data
+
+class DateTimeJSONEncoder(json.JSONEncoder):
+    def default(self, obj):
+        if isinstance(obj, datetime.datetime):
+            return obj.isoformat()
+        else:
+            return super(DateTimeJSONEncoder, self).default(obj)
