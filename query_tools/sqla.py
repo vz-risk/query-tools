@@ -95,7 +95,7 @@ class SQLAlchemySession(object):
         sqla_connection = self.sqla_session.connection()
         select = aggregate_table.select().where(sqla_criterion)
         materialized_results = sqla_connection.execute(select)
-        results = [self.aggregate_schema.map(result)
+        results = [aggregate_schema.map(result)
                    for result in materialized_results]
         return results
 
