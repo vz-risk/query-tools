@@ -4,7 +4,7 @@ $ pip install -r requirements.txt
 ```
 ...a collection of strategies for object persistence. For example, these 
 objects:
-```ptyhon
+```python
 >>> class Penguin(object):
 ...     def __init__(self, name, mood, id=None):
 ...         self.name = name
