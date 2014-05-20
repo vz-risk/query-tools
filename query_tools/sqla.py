@@ -98,10 +98,29 @@ class SQLAlchemySession(object):
         aggregate_table = self.aggregate_mappers[aggregate_schema]
         sqla_connection = self.sqla_session.connection()
         select = aggregate_table.select().where(sqla_criterion)
-        materialized_results = sqla_connection.execute(select)
-        results = [aggregate_schema.map(result)
-                   for result in materialized_results]
+        results = SQLAlchemySession._page_results(
+            sqla_connection, aggregate_schema, select, 250000)
         return results
+
+    @staticmethod
+    def _page_results(sqla_connection, aggregate_schema, select, page_size):
+        select = select.limit(page_size)
+        offset = 0
+        result_count = 0
+        materialized_results = sqla_connection.execute(select)
+        for materialized_result in materialized_results:
+            result_count += 1
+            result = aggregate_schema.map(materialized_result)
+            yield result
+        while result_count == page_size:
+            result_count = 0
+            offset += page_size
+            next_page = select.offset(offset)
+            materialized_results = sqla_connection.execute(next_page)
+            for materialized_result in materialized_results:
+                result_count += 1
+                result = aggregate_schema.map(materialized_result)
+                yield result
 
     def __enter__(self):
         return self
