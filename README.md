@@ -72,6 +72,19 @@ encoded. JSON sessions are adaptors to the python json libs.
 
 ```
 
+## The ElasticSearch session manager
+```python
+query_tools.ElasticSearch(index, ModelType_to_type_name)
+```
+... constructs an elasticsearch session manager where `index` is the name of
+the index to use for this session manager, and `ModelType_to_type_name` is a
+map from `ModelType` to elasticsearch `_type`.
+```python
+>>> goose_elasticsearch = query_tools.ElasticSearch('zoo', {Goose:'goose'})
+>>> with goose_elasticsearch.make_session() as session:
+...     session.add_all((grace, gale, ginger))
+```
+
 ## The SQLAlchemy session manager
 ```python
 query_tools.SQLAlchemy(sqla_metadata, materialized_mappers=None)

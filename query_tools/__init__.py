@@ -1,5 +1,6 @@
 import criteria
 import csv_encoder
+import elasticsearch
 import json_encoder
 import sqla
 import sqlite
@@ -11,3 +12,4 @@ SQLAlchemy = sqla.SQLAlchemy
 SQLite = sqlite.SQLite
 JSONEncoder = json_encoder.JSONEncoder
 CSVEncoder = csv_encoder.CSVEncoder
+ElasticSearch = elasticsearch.ElasticSearch
