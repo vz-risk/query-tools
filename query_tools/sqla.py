@@ -75,6 +75,10 @@ class SQLAlchemySession(object):
                 aggregate_table, criteria.path)
             if criteria.operator == 'in':
                 return prop.in_(criteria.value)
+            elif criteria.operator == '>=':
+                return (prop >= criteria.value)
+            elif criteria.operator == '<':
+                return (prop < criteria.value)
 
     @staticmethod
     def _get_subcriteria(ModelType, aggregate_schema, criteria,
