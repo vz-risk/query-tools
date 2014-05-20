@@ -28,8 +28,9 @@ class SQLiteSession(sqla.SQLAlchemySession):
         super(SQLiteSession, self).__init__(session_maker, aggregate_mappers)
 
     def add_all(self, domain_objects):
-        self._materialize_objects(domain_objects)
         super(SQLiteSession, self).add_all(domain_objects)
+        self.sqla_session.commit() # to get object ids
+        self._materialize_objects(domain_objects)
 
     def _materialize_objects(self, domain_objects):
         #mapped_objects = self._get_mapped_objects(domain_objects)
