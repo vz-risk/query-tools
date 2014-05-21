@@ -42,7 +42,7 @@ class ElasticSearchSession(object):
 
     def add_all(self, domain_objects):
         #TODO: handle multiple types
-        type_name = self.ModelType_to_type_name.values[0]
+        type_name = self.ModelType_to_type_name.values()[0]
         dict_mapper = self.type_name_to_dict_mapper[type_name]
         model_dict_objects = [dict_mapper.map(obj) for obj in domain_objects]
         index_json = json.dumps({'index':{'_type':type_name}})
