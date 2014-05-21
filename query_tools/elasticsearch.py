@@ -1,3 +1,5 @@
+#TODO: use the elasticsearch python api
+
 import json
 import subprocess
 import tempfile
