@@ -98,8 +98,9 @@ class SQLAlchemySession(object):
         aggregate_table = self.aggregate_mappers[aggregate_schema]
         sqla_connection = self.sqla_session.connection()
         select = aggregate_table.select().where(sqla_criterion)
+        PAGE_SIZE = 500000
         results = SQLAlchemySession._page_results(
-            sqla_connection, aggregate_schema, select, 250000)
+            sqla_connection, aggregate_schema, select, PAGE_SIZE)
         return results
 
     @staticmethod

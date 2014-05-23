@@ -1,6 +1,7 @@
 #TODO: use the elasticsearch python api
 
 import json
+import os
 import subprocess
 import tempfile
 
@@ -44,17 +45,28 @@ class ElasticSearchSession(object):
         #TODO: handle multiple types
         type_name = self.ModelType_to_type_name.values()[0]
         dict_mapper = self.type_name_to_dict_mapper[type_name]
-        model_dict_objects = [dict_mapper.map(obj) for obj in domain_objects]
         index_json = json.dumps({'index':{'_type':type_name}})
         bulkfile = tempfile.NamedTemporaryFile()
-        for obj in model_dict_objects:
+        MAX_FILE_SIZE = 104857600
+        SAFE_FILE_SIZE = MAX_FILE_SIZE/2
+        for obj in domain_objects:
             bulkfile.write(index_json)
             bulkfile.write('\n')
+            dict_obj = dict_mapper.map(obj)
             bulkfile.write(json.dumps(
-                obj, cls=query_tools.json_encoder.DateTimeJSONEncoder))
+                dict_obj, cls=query_tools.json_encoder.DateTimeJSONEncoder))
             bulkfile.write('\n')
+            if os.stat(bulkfile.name).st_size > SAFE_FILE_SIZE:
+                self._flush_bulkfile(bulkfile)
+                bulkfile = tempfile.NamedTemporaryFile()
+        self._flush_bulkfile(bulkfile)
+        
+    def _flush_bulkfile(self, bulkfile):
         bulkfile.flush()
-        subprocess.call('curl -s -XPOST localhost:9200/{}/_bulk --data-binary @{}'.format(self.index, bulkfile.name), shell=True)
+        try:
+            subprocess.check_output('curl -s -XPOST localhost:9200/{}/_bulk --data-binary @{}'.format(self.index, bulkfile.name), shell=True)
+        except subprocess.CalledProcessError as e:
+            print e.output
         bulkfile.close()
 
     def query(self, ModelType, criteria):
