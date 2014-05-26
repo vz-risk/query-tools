@@ -11,17 +11,18 @@ import query_tools.json_encoder
 
 class ElasticSearch(object):
 
-    def __init__(self, index, ModelType_to_type_name):
+    def __init__(self, index, ModelType_to_type_name, host='localhost:9200'):
         self.index = index
         self.ModelType_to_type_name = ModelType_to_type_name
         self.type_name_to_dict_mapper = dict(
             (type_name, mapping_tools.DictMapper(ModelType))
             for ModelType, type_name in ModelType_to_type_name.items())
+        self.host = host
 
     def make_session(self):
         session = ElasticSearchSession(
             self.index, self.ModelType_to_type_name,
-            self.type_name_to_dict_mapper)
+            self.type_name_to_dict_mapper, self.host)
         return session
 
     def setup(self):
@@ -30,10 +31,11 @@ class ElasticSearch(object):
 class ElasticSearchSession(object):
 
     def __init__(self, index, ModelType_to_type_name,
-                 type_name_to_dict_mapper):
+                 type_name_to_dict_mapper, host):
         self.index = index
         self.ModelType_to_type_name = ModelType_to_type_name
         self.type_name_to_dict_mapper = type_name_to_dict_mapper
+        self.host = host
 
     def __enter__(self):
         return self
@@ -65,8 +67,8 @@ class ElasticSearchSession(object):
         bulkfile.flush()
         try:
             subprocess.check_output(
-                'curl -XPOST localhost:9200/{}/_bulk --data-binary @{}'.format(
-                    self.index, bulkfile.name),
+                'curl -XPOST {}/{}/_bulk --data-binary @{}'.format(
+                    self.host, self.index, bulkfile.name),
                 shell=True, stderr=subprocess.STDOUT)
         except subprocess.CalledProcessError as e:
             print(e.output)
