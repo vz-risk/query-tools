@@ -1,5 +1,6 @@
 #TODO: use the elasticsearch python api
 
+import datetime
 import json
 import os
 import subprocess
@@ -56,7 +57,7 @@ class ElasticSearchSession(object):
             bulkfile.write('\n')
             dict_obj = dict_mapper.map(obj)
             bulkfile.write(json.dumps(
-                dict_obj, cls=query_tools.json_encoder.DateTimeJSONEncoder))
+                dict_obj, cls=ISODateTimeNoMicrosecond))
             bulkfile.write('\n')
             if os.stat(bulkfile.name).st_size > SAFE_FILE_SIZE:
                 self._flush_bulkfile(bulkfile)
@@ -76,3 +77,19 @@ class ElasticSearchSession(object):
 
     def query(self, ModelType, criteria):
         pass
+
+class ISODateTimeNoMicrosecond(json.JSONEncoder):
+    '''
+    elasticsearch doesn't like the microseconds in python iso datetimes
+    so convert them to milliseconds
+    '''
+    def default(self, obj):
+        if isinstance(obj, datetime.datetime):
+            microseconds = (obj.microsecond / 1000)
+            no_microseconds = datetime.datetime(
+                obj.year, obj.month, obj.day, obj.hour, obj.minute, obj.second)
+            iso_with_milliseconds = '{0}.{1:03d}'.format(
+                no_microseconds.isoformat(), microseconds)
+            return iso_with_milliseconds
+        else:
+            return super(DateTimeJSONEncoder, self).default(obj)
