@@ -44,4 +44,15 @@ class CSVEncoderSession(object):
         for obj in model_objects:
             aggregate_obj = self.aggregate_mapper.map(obj)
             dict_obj = self.aggregate_dict_mapper.map(aggregate_obj)
+            self._fix_unicode(dict_obj)
             self.csv_writer.writerow(dict_obj)
+
+    @staticmethod
+    def _fix_unicode(dict_obj):
+        '''
+        side effect: fix encoding for all values in dict so
+        they can be handled by the csv writer
+        '''
+        for key, value in dict_obj.items():
+            if type(value) is unicode:
+                dict_obj[key] = value.encode('utf8')
