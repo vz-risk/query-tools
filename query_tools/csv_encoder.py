@@ -24,8 +24,9 @@ class CSVEncoderSession(object):
                  fieldnames):
         self.aggregate_mapper = aggregate_mapper
         self.aggregate_dict_mapper = aggregate_dict_mapper
-        #TODO: this seems to rely on an impelementation detail of the dict
-        #mapper
+        #TODO: this relies on an impelementation detail of the dict mapper
+        #a better solution probably involves using extrasaction to
+        #print "all" fields
         if fieldnames is None:
             fieldnames = mapping_tools.heuristics.properties(
                 self.aggregate_mapper.ModelPrimeType)
@@ -40,8 +41,7 @@ class CSVEncoderSession(object):
         pass # do nothing
 
     def add_all(self, model_objects):
-        aggregate_objects = [self.aggregate_mapper.map(obj)
-                             for obj in model_objects]
-        dict_objects = [self.aggregate_dict_mapper.map(obj)
-                        for obj in aggregate_objects]
-        self.csv_writer.writerows(dict_objects)
+        for obj in model_objects:
+            aggregate_obj = self.aggregate_mapper.map(obj)
+            dict_obj = self.aggregate_dict_mapper.map(aggregate_obj)
+            self.csv_writer.writerow(dict_obj)
