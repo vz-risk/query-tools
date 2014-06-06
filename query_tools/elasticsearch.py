@@ -67,12 +67,16 @@ class ElasticSearchSession(object):
     def _flush_bulkfile(self, bulkfile):
         bulkfile.flush()
         try:
-            subprocess.check_output(
-                'curl -XPOST {}/{}/_bulk --data-binary @{}'.format(
+            result = json.loads(subprocess.check_output(
+                'curl -sS -XPOST {}/{}/_bulk --data-binary @{}'.format(
                     self.host, self.index, bulkfile.name),
-                shell=True, stderr=subprocess.STDOUT)
+                shell=True, stderr=subprocess.STDOUT))
+            if 'errors' in result and result['errors']:
+                print(result)
         except subprocess.CalledProcessError as e:
             print(e.output)
+        except Exception as e:
+            print(e)
         bulkfile.close()
 
     def query(self, ModelType, criteria):
