@@ -73,6 +73,8 @@ class ElasticSearchSession(object):
                 shell=True, stderr=subprocess.STDOUT))
             if 'errors' in result and result['errors']:
                 print(result)
+            elif 'error' in result:
+                print(result['error'])
         except subprocess.CalledProcessError as e:
             print(e.output)
         except Exception as e:
