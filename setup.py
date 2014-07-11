@@ -20,6 +20,7 @@ setup(
     install_requires=[
         'sqlalchemy', #TODO: make optional
         'mock', #TODO: make optional: only required for testing
+        'elasticsearch'
         #'mapping-tools', #TODO: handled by github requirements
         #'test-data' #TODO: handled by github requirements
     ],
