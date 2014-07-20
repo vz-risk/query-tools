@@ -69,6 +69,9 @@ class ElasticSearchSession(object):
             type_name = self.ModelType_to_type_name[type(obj)]
             dict_mapper = self.type_name_to_dict_mapper[type_name]
             action = dict_mapper.map(obj)
+            #TODO: fix for todo in iocdb es session manager
+            if 'id' in action and action['id'] is None:
+                del action['id']
             action['_index'] = self.index
             action['_type'] = type_name
             yield action
