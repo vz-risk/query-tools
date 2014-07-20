@@ -54,6 +54,10 @@ class ElasticSearchSession(object):
         pass #do nothing
 
     def add_all(self, domain_objects):
+        #results = elasticsearch.helpers.streaming_bulk(
+        #   self.es, self._get_actions(domain_objects))
+        #for result in results:
+        #    print(json.dumps(result, indent=2))
         results = elasticsearch.helpers.bulk(
            self.es, self._get_actions(domain_objects))
         print(json.dumps(results, indent=2))
