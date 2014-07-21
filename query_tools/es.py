@@ -1,5 +1,6 @@
 #TODO: use the elasticsearch python api
 
+import collections
 import datetime
 import json
 import os
@@ -77,15 +78,65 @@ class ElasticSearchSession(object):
             yield action
         
     def query(self, ModelType, criteria):
-        res = self.es.search(index="iocdb", body={"query": {"match_all": {}}})
+        query = {'query': self._make_query(criteria)}
+        res = self.es.search(index=self.index, body=query)
         schema = self.ModelType_to_schema_mapper[ModelType]
-        objs = []
-        for hit in res['hits']['hits']:
-            source = hit['_source']
-            obj = schema.map(source)
-            objs.append(obj)
-        return objs
-        #return [schema.map(hit['_source']) for hit in res['hits']['hits']]
+        return [schema.map(hit['_source']) for hit in res['hits']['hits']]
+
+    @staticmethod
+    def _make_query(criteria, query={}):
+        if hasattr(criteria, 'conjunction'):
+            if criteria.conjunction == 'and':
+                for subcriteria in criteria:
+                    subquery = ElasticSearchSession._make_query(subcriteria)
+                    query = ElasticSearchSession._update_query(query, subquery)
+            elif criteria.conjunction == 'or':
+                raise NotImplementedError()
+        else:
+            path_string = '.'.join(criteria.path)
+            if criteria.operator == 'in':
+                value_strings = ['{}:\"{}\"'.format(path_string, v)
+                                 for v in criteria.value]
+                query_string = {'query':' OR '.join(value_strings)}
+                filt = {'fquery':{'query':{'query_string':query_string}}}
+                query = ElasticSearchSession._append_bool('must', query, filt)
+            elif criteria.operator == 'not in':
+                value_strings = ['{}:\"{}\"'.format(path_string, v)
+                                 for v in criteria.value]
+                query_string = {'query':' OR '.join(value_strings)}
+                filt = {'fquery':{'query':{'query_string':query_string}}}
+                query = ElasticSearchSession._append_bool(
+                    'must_not', query, filt)
+            elif criteria.operator == '>=':
+                filt = {'range':{path_string:{'gte': criteria.value}}}
+                query = ElasticSearchSession._append_bool('must', query, filt)
+            elif criteria.operator == '<':
+                filt = {'range':{path_string:{'lt': criteria.value}}}
+                query = ElasticSearchSession._append_bool('must', query, filt)
+        return query
+
+    @staticmethod
+    def _update_query(query, update):
+        for k, v in update.iteritems():
+            if isinstance(v, collections.Mapping):
+                r = ElasticSearchSession._update_query(query.get(k, {}), v)
+                query[k] = r
+            else:
+                query[k] = update[k]
+        return query
+
+    @staticmethod
+    def _append_bool(variety, query, filt):
+        #TODO: test if path exists without throwing an exception
+        bool_list = None
+        try:
+            bool_list = query['filtered']['filter']['bool'][variety]
+        except KeyError:
+            bool_list = []
+            query = ElasticSearchSession._update_query(
+                query, {'filtered':{'filter':{'bool':{variety:bool_list}}}})
+        bool_list.append(filt)
+        return query
 
 class ISODateTimeNoMicrosecond(json.JSONEncoder):
     '''
