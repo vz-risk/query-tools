@@ -104,21 +104,17 @@ class ElasticSearchSession(object):
         else:
             path_string = '.'.join(criteria.path)
             if criteria.operator == 'in':
-	        query = ElasticSearchSession._append_terms(
-                    path_string, criteria.value, query)
+                section = ElasticSearchSession._get_bool_section('must', query)
+                section.append({'terms':{path_string:criteria.value}})
             elif criteria.operator == 'not in':
-                value_strings = ['{}:\"{}\"'.format(path_string, v)
-                                 for v in criteria.value]
-                query_string = {'query':' OR '.join(value_strings)}
-                filt = {'fquery':{'query':{'query_string':query_string}}}
-                query = ElasticSearchSession._append_bool(
-                    'must_not', query, filt)
+                section = ElasticSearchSession._get_bool_section('must_not', query)
+                section.append({'terms':{path_string:criteria.value}})
             elif criteria.operator == '>=':
-                filt = {'range':{path_string:{'gte': criteria.value}}}
-                query = ElasticSearchSession._append_bool('must', query, filt)
+                section = ElasticSearchSession._get_bool_section('must', query)
+                section.append({'range':{path_string:{'gte': criteria.value}}})
             elif criteria.operator == '<':
-                filt = {'range':{path_string:{'lt': criteria.value}}}
-                query = ElasticSearchSession._append_bool('must', query, filt)
+                section = ElasticSearchSession._get_bool_section('must', query)
+                section.append({'range':{path_string:{'lt': criteria.value}}})
         return query
 
     @staticmethod
@@ -132,30 +128,13 @@ class ElasticSearchSession(object):
         return query
 
     @staticmethod
-    def _append_bool(variety, query, filt):
-        #TODO: test if path exists without throwing an exception
-        bool_list = None
-        try:
-            bool_list = query['filtered']['filter']['bool'][variety]
-        except KeyError:
-            bool_list = []
-            query = ElasticSearchSession._update_query(
-                query, {'filtered':{'filter':{'bool':{variety:bool_list}}}})
-        bool_list.append(filt)
-        return query
+    def _get_bool_section(section, query):
+        filtered = query.setdefault('filtered', {})
+        filter_ = filtered.setdefault('filter', {})
+        bool_ = filter_.setdefault('bool', {})
+        section = bool_.setdefault(section, [])
+        return section
 
-    @staticmethod
-    def _append_terms(field, terms, query):
-        terms_dict = None
-        try:
-            terms_dict = query['filtered']['filter']['terms']
-        except KeyError:
-            query = ElasticSearchSession._update_query(
-                query, {'filtered':{'filter':{'terms':{}}}})
-            terms_dict = query['filtered']['filter']['terms']
-        terms_dict[field] = terms
-        return query
-        
 class ISODateTimeNoMicrosecond(json.JSONEncoder):
     '''
     elasticsearch doesn't like the microseconds in python iso datetimes
