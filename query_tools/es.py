@@ -77,11 +77,20 @@ class ElasticSearchSession(object):
             action['_type'] = type_name
             yield action
         
-    def query(self, ModelType, criteria):
-        query = {'query': self._make_query(criteria)}
-        res = self.es.search(index=self.index, body=query)
+    def query(self, ModelType, criteria, page_size=500):
         schema = self.ModelType_to_schema_mapper[ModelType]
-        return [schema.map(hit['_source']) for hit in res['hits']['hits']]
+        query = {
+                    'query': self._make_query(criteria),
+                    'size':page_size, 'from':0
+                }
+        more_pages = True
+        while more_pages:
+            res = self.es.search(index=self.index, body=query)
+            query['from'] += page_size
+            more_pages = query['from'] < res['hits']['total']
+            model_objects = [schema.map(hit['_source']) for hit in res['hits']['hits']]
+            for obj in model_objects:
+                yield obj
 
     @staticmethod
     def _make_query(criteria, query={}):
@@ -95,11 +104,8 @@ class ElasticSearchSession(object):
         else:
             path_string = '.'.join(criteria.path)
             if criteria.operator == 'in':
-                value_strings = ['{}:\"{}\"'.format(path_string, v)
-                                 for v in criteria.value]
-                query_string = {'query':' OR '.join(value_strings)}
-                filt = {'fquery':{'query':{'query_string':query_string}}}
-                query = ElasticSearchSession._append_bool('must', query, filt)
+	        query = ElasticSearchSession._append_terms(
+                    path_string, criteria.value, query)
             elif criteria.operator == 'not in':
                 value_strings = ['{}:\"{}\"'.format(path_string, v)
                                  for v in criteria.value]
@@ -138,6 +144,18 @@ class ElasticSearchSession(object):
         bool_list.append(filt)
         return query
 
+    @staticmethod
+    def _append_terms(field, terms, query):
+        terms_dict = None
+        try:
+            terms_dict = query['filtered']['filter']['terms']
+        except KeyError:
+            query = ElasticSearchSession._update_query(
+                query, {'filtered':{'filter':{'terms':{}}}})
+            terms_dict = query['filtered']['filter']['terms']
+        terms_dict[field] = terms
+        return query
+        
 class ISODateTimeNoMicrosecond(json.JSONEncoder):
     '''
     elasticsearch doesn't like the microseconds in python iso datetimes
