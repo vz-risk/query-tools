@@ -3,6 +3,7 @@
 import collections
 import datetime
 import json
+import logging
 import os
 import subprocess
 import tempfile
@@ -61,7 +62,6 @@ class ElasticSearchSession(object):
         #    print(json.dumps(result, indent=2))
         results = elasticsearch.helpers.bulk(
            self.es, self._get_actions(domain_objects))
-        print(json.dumps(results, indent=2))
 
     def _get_actions(self, domain_objects):
         #TODO: domain_objects should be indexed by type to prevent
@@ -77,7 +77,7 @@ class ElasticSearchSession(object):
             action['_type'] = type_name
             yield action
         
-    def query(self, ModelType, criteria, page_size=500):
+    def query(self, ModelType, criteria, page_size=5000):
         schema = self.ModelType_to_schema_mapper[ModelType]
         query = {
                     'query': self._make_query(criteria),
