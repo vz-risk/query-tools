@@ -77,7 +77,7 @@ class ElasticSearchSession(object):
             action['_type'] = type_name
             yield action
         
-    def query(self, ModelType, criteria, page_size=5000):
+    def query(self, ModelType, criteria, page_size=50000):
         schema = self.ModelType_to_schema_mapper[ModelType]
         query = {
                     'query': self._make_query(criteria),
