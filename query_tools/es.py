@@ -79,16 +79,19 @@ class ElasticSearchSession(object):
         
     def query(self, ModelType, criteria, page_size=50000):
         schema = self.ModelType_to_schema_mapper[ModelType]
+        type_name = self.ModelType_to_type_name[ModelType]
         query = {
                     'query': self._make_query(criteria),
                     'size':page_size, 'from':0
                 }
         more_pages = True
         while more_pages:
-            res = self.es.search(index=self.index, body=query)
+            res = self.es.search(
+                index=self.index, doc_type=type_name, body=query)
             query['from'] += page_size
             more_pages = query['from'] < res['hits']['total']
-            model_objects = [schema.map(hit['_source']) for hit in res['hits']['hits']]
+            model_objects = [schema.map(hit['_source']) 
+                             for hit in res['hits']['hits']]
             for obj in model_objects:
                 yield obj
 
