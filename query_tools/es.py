@@ -3,6 +3,7 @@
 import collections
 import datetime
 import json
+import logging
 import os
 import subprocess
 import tempfile
@@ -61,7 +62,6 @@ class ElasticSearchSession(object):
         #    print(json.dumps(result, indent=2))
         results = elasticsearch.helpers.bulk(
            self.es, self._get_actions(domain_objects))
-        print(json.dumps(results, indent=2))
 
     def _get_actions(self, domain_objects):
         #TODO: domain_objects should be indexed by type to prevent
