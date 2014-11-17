@@ -5,7 +5,7 @@ import mapping_tools
 
 class SQLAlchemy(object):
 
-    def __init__(self, sqla_metadata, aggregate_mappers,
+    def __init__(self, sqla_metadata, aggregate_mappers={},
                  engine_url='sqlite://'):
         self.sqla_metadata = sqla_metadata
         self.aggregate_mappers = aggregate_mappers
@@ -43,6 +43,11 @@ class SQLAlchemySession(object):
             aggregate_schema, sqla_criterion)
         #TODO: self._merge_domain_objects(domain_objects)
         return domain_objects
+
+    def get(self, ModelType, id):
+        obj = self.sqla_session.query(ModelType).get(id)
+        return obj
+           
 
     #TODO: this is only used for testing and involves duplicate code from
     #SQLAlchemySession.query and SQLAlchemySession._select_domain_objects
