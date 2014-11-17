@@ -22,6 +22,13 @@ class JSONSession(object):
     def __exit__(self, exc_type, exc_value, traceback):
         pass # do nothing
 
+    def add(self, model_object):
+        model_dict_object = self.model_dict_mapper.map(model_object)
+        json_data = json.dumps(model_dict_object, indent=2, sort_keys=True,
+                              cls=DateTimeJSONEncoder)
+        return json_data
+
+    #TODO: DRY JSONSession.add
     def add_all(self, model_objects):
         model_dict_objects = [self.model_dict_mapper.map(obj)
                               for obj in model_objects]

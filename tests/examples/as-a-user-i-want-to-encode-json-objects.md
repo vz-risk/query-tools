@@ -4,6 +4,19 @@
 >>> import data_fixt
 >>> goose_json_encoder = query_tools.JSONEncoder(model_fixt.Goose)
 >>> with goose_json_encoder.make_session() as session:
+...     json_data = session.add(data_fixt.grace)
+...     print(json_data) # doctest: +NORMALIZE_WHITESPACE
+{
+  "favorite_penguin": {
+    "id": null, 
+    "mood": "fat", 
+    "name": "penny"
+  }, 
+  "id": null, 
+  "name": "grace"
+}
+
+>>> with goose_json_encoder.make_session() as session:
 ...     json_data = session.add_all(data_fixt.geese)
 ...     print(json_data) # doctest: +NORMALIZE_WHITESPACE
 [ 
