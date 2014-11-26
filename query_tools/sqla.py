@@ -28,10 +28,9 @@ class SQLAlchemySession(object):
         self.aggregate_mappers = aggregate_mappers
 
     def add_all(self, domain_objects):
-        #TODO: this should be paged
-        #domain_objects could be a generator resulting
-        #in a loading all objects from a generator into memory
-        self.sqla_session.add_all(domain_objects)
+        #self.sqla_session.add_all(domain_objects)
+        for domain_object in domain_objects:
+            self.sqla_session.merge(domain_object)
         return len(domain_objects)
 
     def query(self, ModelType, criteria):
