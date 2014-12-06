@@ -77,6 +77,12 @@ class ElasticSearchSession(object):
             action['_type'] = type_name
             yield action
         
+    def get(self, ModelType, id):
+        type_name = self.ModelType_to_type_name[ModelType]
+        schema = self.ModelType_to_schema_mapper[ModelType]
+        res = self.es.get(index=self.index, doc_type=type_name, id=id)
+        return schema.map(res['_source'])
+
     def query(self, ModelType, criteria, page_size=50000):
         schema = self.ModelType_to_schema_mapper[ModelType]
         type_name = self.ModelType_to_type_name[ModelType]
