@@ -1,3 +1,7 @@
-git+https://github.com/natb1/mapping_tools.git#egg=mapping-tools
-git+https://github.com/natb1/test_data.git#egg=test-data
-git+https://github.com/natb1/query_tools.git#egg=query-tools
+# From iocdb_prov@iocdb-staging/staged-repos
+git+ssh://iocdb_prov@iocdb-staging/staged-repos/mapping_tools.git#egg=mapping-tools
+git+ssh://iocdb_prov@iocdb-staging/staged-repos/query_tools.git#egg=query-tools
+# From github
+#git+https://github.com/natb1/mapping_tools.git#egg=mapping-tools
+#Doesn't exist -> git+https://github.com/natb1/test_data.git#egg=test-data
+#git+https://github.com/natb1/query_tools.git#egg=query-tools
